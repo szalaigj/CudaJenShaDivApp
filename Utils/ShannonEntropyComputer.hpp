@@ -13,7 +13,7 @@ class IShannonEntropyComputer
 class ShannonEntropyComputer : public IShannonEntropyComputer
 {
 	public:
-		virtual double computeEntropy(double *, int);
+		double computeEntropy(double *, int);
 };
 
 #endif /* SHA_ENT_COMP_HPP_ */

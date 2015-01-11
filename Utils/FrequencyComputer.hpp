@@ -8,9 +8,9 @@ class IFrequencyComputer
 {
 	public:
 		virtual std::string getSymbols() = 0;
-		virtual double * computeFrequency(std::string& sequence) = 0;
+		virtual double * computeFrequency(std::string * sequence) = 0;
 		virtual void initChrCounts(std::map <char, long>& chrCounts) = 0;
-		virtual void countCharsInSeq(std::string& sequence, std::map <char, long>& chrCounts) = 0;
+		virtual void countCharsInSeq(std::string * sequence, std::map <char, long>& chrCounts) = 0;
 		virtual void increaseCountChar(char chrInSeq, std::map <char, long>& chrCounts) = 0;
 		virtual void decreaseCountChar(char chrInSeq, std::map <char, long>& chrCounts) = 0;
 		virtual double * determineFrequencies(std::map <char, long>& chrCounts, int sequenceLength) = 0;
@@ -22,16 +22,16 @@ class FrequencyComputer : public IFrequencyComputer
 		FrequencyComputer(std::string symbols) : symbols(symbols)
 		{
 		}
-		virtual std::string getSymbols()
+		std::string getSymbols()
 		{
 			return symbols;
 		}
-		virtual double * computeFrequency(std::string&);
-		virtual void initChrCounts(std::map <char, long>&);
-		virtual void countCharsInSeq(std::string&, std::map <char, long>&);
-		virtual void increaseCountChar(char, std::map <char, long>&);
-		virtual void decreaseCountChar(char, std::map <char, long>&);
-		virtual double * determineFrequencies(std::map <char, long>&, int);
+		double * computeFrequency(std::string *);
+		void initChrCounts(std::map <char, long>&);
+		void countCharsInSeq(std::string *, std::map <char, long>&);
+		void increaseCountChar(char, std::map <char, long>&);
+		void decreaseCountChar(char, std::map <char, long>&);
+		double * determineFrequencies(std::map <char, long>&, int);
 		
 	private:
 		void throwErrorMsg(char currentChr)

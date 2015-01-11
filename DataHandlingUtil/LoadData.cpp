@@ -3,7 +3,7 @@
 class BaseDataLoader : public IDataLoader
 {
 	public:
-		virtual std::string loadData(std::string& filename)
+		std::string loadData(std::string& filename)
 		{
 			std::string result("");
 			std::string line;

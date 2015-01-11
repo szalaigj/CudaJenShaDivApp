@@ -23,7 +23,7 @@ class JenShaDivComputer : public IJenShaDivComputer
 			return entropyComputer;
 		}
 
-		virtual double computeDivergence(double *, double *, double, double, int, int);
+		double computeDivergence(double *, double *, double, double, int, int);
 
 	private:
 		void throwErrorMsg()

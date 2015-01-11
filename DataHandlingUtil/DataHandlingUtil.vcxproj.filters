@@ -18,9 +18,15 @@
     <ClInclude Include="LoadData.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SubSeqWriter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LoadData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SubSeqWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

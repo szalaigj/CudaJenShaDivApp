@@ -71,9 +71,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="LoadData.hpp" />
+    <ClInclude Include="SubSeqWriter.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LoadData.cpp" />
+    <ClCompile Include="SubSeqWriter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

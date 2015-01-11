@@ -1,4 +1,5 @@
 #include <math.h>
+#include <gsl/gsl_cdf.h>
 
 #include "Splitter.hpp"
 
@@ -9,9 +10,8 @@ extern const double significanceThreshold;
 extern const int minSeqLength;
 extern const std::string symbols;
 
-std::vector<std::string>& Splitter::split(std::string& sequence)
+std::vector<std::string> Splitter::split(std::string& sequence)
 {
-	std::vector<std::string> result;
 	double maxDivergence = -1.0;
 	std::string seqPrefixForMax = "";
 	std::string seqPostfixForMax = "";
@@ -19,7 +19,7 @@ std::vector<std::string>& Splitter::split(std::string& sequence)
 	getFrequencyComputer().initChrCounts(chrCountsPrefix);
 	std::map <char, long> chrCountsPostfix;
 	getFrequencyComputer().initChrCounts(chrCountsPostfix);
-	getFrequencyComputer().countCharsInSeq(sequence, chrCountsPostfix);
+	getFrequencyComputer().countCharsInSeq(&sequence, chrCountsPostfix);
 	int seqLen = sequence.length();
 	if (seqLen >= minSeqLength)
 	{
@@ -29,8 +29,8 @@ std::vector<std::string>& Splitter::split(std::string& sequence)
 				pos, chrCountsPrefix, chrCountsPostfix);
 		}
 	}
-	double significance = computeSignificance(sequence, maxDivergence);
-	result = checkSignificance(sequence, seqPrefixForMax, seqPostfixForMax, significance);
+	double significance = computeSignificance(sequence.length(), maxDivergence);
+	std::vector<std::string> result = checkSignificance(sequence, seqPrefixForMax, seqPostfixForMax, significance);
 	return result;
 }
 
@@ -58,21 +58,22 @@ void Splitter::computeDivergenceForPos(std::string& sequence, double& maxDiverge
 	}
 }
 
-double Splitter::computeSignificance(std::string& sequence, double maxDivergence)
+double Splitter::computeSignificance(int N, double maxDivergence)
 {
 	double significance = 0.0;
 	if (maxDivergence > 0.0)
 	{
-		int N = sequence.length();
 		double NEff = aParam * log(N) + bParam;
+		significance = gsl_cdf_chisq_P(2 * N * log(2) * betaParam * maxDivergence, symbols.length() - 1);
+		//significance = getChiSquaredCDFComputer().chiSquared(symbols.length() - 1, 2 * N * log(2) * betaParam * maxDivergence);
 		//chi_squared chiSquared(symbols.length() - 1);
-		//significance = boost::math::cdf(chiSquared, N * log(2) * betaParam * maxDivergence);
+		//significance = boost::math::cdf(chiSquared, 2 * N * log(2) * betaParam * maxDivergence);
 		significance = pow(significance, NEff);
 	}
 	return significance;
 }
 
-std::vector<std::string>& Splitter::checkSignificance(std::string& sequence, std::string& seqPrefixForMax,
+std::vector<std::string> Splitter::checkSignificance(std::string& sequence, std::string& seqPrefixForMax,
 	std::string& seqPostfixForMax, double significance)
 {
 	std::vector<std::string> result;

@@ -11,12 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChiSquaredCDFComputer.hpp" />
     <ClInclude Include="FrequencyComputer.hpp" />
     <ClInclude Include="JenShaDivComputer.hpp" />
     <ClInclude Include="ShannonEntropyComputer.hpp" />
     <ClInclude Include="Splitter.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ChiSquaredCDFComputer.cpp" />
     <ClCompile Include="FrequencyComputer.cpp" />
     <ClCompile Include="JenShaDivComputer.cpp" />
     <ClCompile Include="ShannonEntropyComputer.cpp" />
@@ -55,8 +57,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);e:\Utils\GSL\GSL_WIN\gsl\x86\include</IncludePath>
+    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);e:\Utils\GSL\GSL_WIN\gsl\x86\lib;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

@@ -1,13 +1,13 @@
 #include "FrequencyComputer.hpp"
 
-double * FrequencyComputer::computeFrequency(std::string& sequence)
+double * FrequencyComputer::computeFrequency(std::string * sequence)
 {
 	std::string symbols = getSymbols();
 	double * frequencies = new double[symbols.length()];
 	std::map <char, long> chrCounts;
 	initChrCounts(chrCounts);
 	countCharsInSeq(sequence, chrCounts);
-	determineFrequencies(frequencies, chrCounts, sequence.length());
+	determineFrequencies(frequencies, chrCounts, sequence->length());
 	return frequencies;
 }
 
@@ -20,11 +20,11 @@ void FrequencyComputer::initChrCounts(std::map <char, long>& chrCounts)
 	}
 }
 
-void FrequencyComputer::countCharsInSeq(std::string& sequence, std::map <char, long>& chrCounts)
+void FrequencyComputer::countCharsInSeq(std::string * sequence, std::map <char, long>& chrCounts)
 {
-	for (int idx = 0; idx < sequence.length(); idx++)
+	for (int idx = 0; idx < sequence->length(); idx++)
 	{
-		char currentChr = sequence[idx];
+		char currentChr = (*sequence)[idx];
 		if (chrCounts.find(currentChr) == chrCounts.end())
 		{
 			throwErrorMsg(currentChr);
