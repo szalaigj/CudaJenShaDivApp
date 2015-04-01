@@ -23,6 +23,7 @@
     <ClCompile Include="JenShaDivComputer.cpp" />
     <ClCompile Include="ShannonEntropyComputer.cpp" />
     <ClCompile Include="Splitter.cpp" />
+    <ClCompile Include="UIncGamma.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6B83CC15-7CB3-4285-8A1F-380CC984B985}</ProjectGuid>
@@ -34,7 +35,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

@@ -1,5 +1,5 @@
 #include <math.h>
-#include <gsl/gsl_cdf.h>
+//#include <gsl/gsl_cdf.h>
 
 #include "Splitter.hpp"
 
@@ -56,6 +56,9 @@ void Splitter::computeDivergenceForPos(std::string& sequence, double& maxDiverge
 		seqPrefixForMax = sequencePrefix;
 		seqPostfixForMax = sequencePostfix;
 	}
+	// The followings are needed otherwise there is memory leak.
+	delete frequenciesPrefix;
+	delete frequenciesPostfix;
 }
 
 double Splitter::computeSignificance(int N, double maxDivergence)
@@ -64,10 +67,8 @@ double Splitter::computeSignificance(int N, double maxDivergence)
 	if (maxDivergence > 0.0)
 	{
 		double NEff = aParam * log(N) + bParam;
-		significance = gsl_cdf_chisq_P(2 * N * log(2) * betaParam * maxDivergence, symbols.length() - 1);
-		//significance = getChiSquaredCDFComputer().chiSquared(symbols.length() - 1, 2 * N * log(2) * betaParam * maxDivergence);
-		//chi_squared chiSquared(symbols.length() - 1);
-		//significance = boost::math::cdf(chiSquared, 2 * N * log(2) * betaParam * maxDivergence);
+		//significance = gsl_cdf_chisq_P(2 * N * log(2) * betaParam * maxDivergence, symbols.length() - 1);
+		significance = getChiSquaredCDFComputer().computeValue(symbols.length() - 1, 2 * N * log(2) * betaParam * maxDivergence);
 		significance = pow(significance, NEff);
 	}
 	return significance;

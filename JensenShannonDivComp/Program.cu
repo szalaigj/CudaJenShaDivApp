@@ -17,6 +17,7 @@
 #include "../DataHandlingUtil/SubSeqWriter.cpp"
 #include "../Utils/Splitter.cpp"
 #include "../Utils/ChiSquaredCDFComputer.cpp"
+#include "../Utils/UIncGamma.cpp"
 
 //#include <gsl/gsl_sf_gamma.h>
 //#include <gsl/gsl_randist.h>
@@ -44,7 +45,8 @@ int main(int argc, char** argv)
 	ShannonEntropyComputer entropyComputer;
 	FrequencyComputer frequencyComputer(symbols);
 	JenShaDivComputer jenShaDivComputer(entropyComputer);
-	ChiSquaredCDFComputer chiSquaredCDFComputer;
+	UIncGamma uIncGamma;
+	ChiSquaredCDFComputer chiSquaredCDFComputer(uIncGamma);
 	Splitter splitter(frequencyComputer, jenShaDivComputer, chiSquaredCDFComputer);
 	BaseSubSeqWriter subSeqWriter;
 	std::string filename(argv[1]);
@@ -67,14 +69,6 @@ int main(int argc, char** argv)
 	double divergence = jenShaDivComputer.computeDivergence(frequenciesPrefix, frequenciesPostfix,
 		weightPrefix, weightPostfix, symbols.length(), symbols.length());
 	std::cout << divergence << std::endl;
-	//double d3 = gsl_cdf_chisq_P(35953.548118094215, 3.0);
-	//double d2 = log(gsl_sf_gamma_inc_P(1.5, 17976.774059047108)) + gsl_sf_lngamma(17976.774059047108);
-	//double d1 = gsl_sf_gamma(17976.774059047108) - gsl_sf_gamma_inc(1.5, 17976.774059047108);
-	//double x = 2 * 547496 * log(2) * betaParam * 0.059212766850595649;
-	//double temp = (double)(symbols.length() - 1) / 2.0;
-	//double res1 = chiSquaredCDFComputer.lowerIncompleteGamma(temp, x / 2.0);
-	//double res2 = chiSquaredCDFComputer.gammaApprox(temp);
-	//double res = chiSquaredCDFComputer.chiSquared(symbols.length() - 1, 2 * 547496 * log(2) * betaParam * 0.059212766850595649);
 	std::vector<std::string> subsequences = splitter.split(inputData);
 	std::string outputFilename(argv[2]);
 	subSeqWriter.writeData(outputFilename, &subsequences);

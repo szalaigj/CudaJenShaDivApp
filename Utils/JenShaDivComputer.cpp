@@ -12,5 +12,9 @@ double JenShaDivComputer::computeDivergence(double * frequencies1, double * freq
 	double result = getEntropyComputer().computeEntropy(sumOfFrequencies, freq1Length)
 		- weight1 * getEntropyComputer().computeEntropy(frequencies1, freq1Length)
 		- weight2 * getEntropyComputer().computeEntropy(frequencies2, freq2Length);
+	// The followings are needed otherwise there is memory leak.
+	delete weightedFrequencies1;
+	delete weightedFrequencies2;
+	delete sumOfFrequencies;
 	return result;
 }
