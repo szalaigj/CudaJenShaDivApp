@@ -7,9 +7,11 @@
 
 // standard library includes
 #include <iostream>
+#include <time.h>
 
 // local CudaJenShaDivApp includes
 #include "CudaBasicIncludes.cuh"
+
 #include "../Utils/ShannonEntropyComputer.cpp"
 #include "../Utils/FrequencyComputer.cpp"
 #include "../Utils/JenShaDivComputer.cpp"
@@ -18,6 +20,9 @@
 #include "../Utils/Splitter.cpp"
 #include "../Utils/ChiSquaredCDFComputer.cpp"
 #include "../Utils/UIncGamma.cpp"
+
+#include "SplitterWithCntMX.hpp"
+#include "CountMatrixHolder.cuh"
 
 //#include <gsl/gsl_sf_gamma.h>
 //#include <gsl/gsl_randist.h>
@@ -36,11 +41,17 @@ const float hUsedParams[3] = { betaParam, aParam, bParam };
 const double significanceThreshold = 0.9;
 const int minSeqLength = 13;
 
-__constant__ int sequenceLength;
+typedef unsigned char BYTE;
+const BYTE subSeqLength = 255;
+
 __constant__ double usedParams[3];
 
 int main(int argc, char** argv)
 {
+	clock_t begin, end;
+	double elapsed_secs;
+	std::string seq;
+	//seq = "GAATTCATTCACCATTATTCTTTTATAATATTGCTATTTTATTATTCTTGATCATTGACATTACCATATAAATGGTAGAATCAGCTTGAAAATTTCTACCAAAATGCCGCTTGGAATTTTTATTAGAATTGCATTGGATCTGGAGATCAATTTACGAAGAACTGACTCTTTAAACATAACAACTCTTCTGATCCATGACAAGGTTTATCTCCCCACTAATTTAGTTCTTTCATAATTTCTCAAAGCAATTTTTTGTAGTTTTTGGTGTACTGGCCTTACATAAATTTTGTTGACTTTCCTTTTTTTTTTTTTTTTTTTTTTTTTTTTGAGACAGAGTCTTGCTCTGTTACCCAGGCTGGAGTGCAGTGATGCGATCTCGGCTCACTGTAACCTCTGCCTCCCAGGTTCAAGTGATCCTCCTGCCTCAGCCTCCCAAGTAGCTGGACTACAGGCACATGCCACCACGCCTAGCTAATTTTTTGTATTTTTAGTAGAGATGGGGTTTCACTGTGTTAGGCGTGATGGTCTCCATCTCCTGACCTCATGATCTGCCCACCTCGGCTTCCCAAAGTGCTGAGATTACAAGTGTGAGCCATGGTGCCCAGTCTGTTGAATTTATTTATAAGCACAACATGTATTTAGATGTTACTTTAAATGAAATTGTATTCTTATTTCATTTTCCAAATGCTCATTGCTAATATACAGAAATACAAAAGACCACTTACATTGAGAGCTTACATTCTGCAACACTACCAAACTCACTGATTAGTTCTGGTAGATTTTTGTAGATTTCTAGCATTGTTAACAAACACAGTCATTATCTGTGAATAAAGACAGCTTCAATTCTTTCAATACTTTATTAATTTTTCTTACTTTATTGCATTGACTTAGAGCTCTAGTATAATGCTGAATTAAAAGAGTAACAACAGGTATTCTACTTTTTTCTCTGATTTAATAGAAAAGCATTCAATCTTATGCCATTTAATATAATGTTACCTGTGGGTTCTTCAAATCTGCCCTTAATGGGGTTGGAAGTGTTGCCTTCTGTTCTCATCATGCTGAGCATTTTCTGGGGTTTGTTTTTATAAATCATGAAAAAAGTTTTCAATTTTGCCAAATGCTTTTACTGTGTATGACAAGGTAATCATACGGTTTTTCTCTTTTGCCCTGATAATATATAAAATGATATTTTTTAAATATAAAAAAGAGGCCGGGCATGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCTGAGGCGGGCGGATCACACTTGTGGCAGCATTGAAGGCTTCACTCTTCCCCAAGGG";
 	BaseDataLoader loader;
 	ShannonEntropyComputer entropyComputer;
 	FrequencyComputer frequencyComputer(symbols);
@@ -49,29 +60,94 @@ int main(int argc, char** argv)
 	ChiSquaredCDFComputer chiSquaredCDFComputer(uIncGamma);
 	Splitter splitter(frequencyComputer, jenShaDivComputer, chiSquaredCDFComputer);
 	BaseSubSeqWriter subSeqWriter;
+	
 	std::string filename(argv[1]);
-	std::string inputData = loader.loadData(filename);
-	int len = inputData.length();
+	seq = loader.loadData(filename);
+
+	std::vector<std::string> outputPerformance;
+	
+	std::string outputPerfStr;
+	std::ostringstream s;
+
+
+	begin = clock();
+	std::vector<std::string> subsequences = splitter.split(seq);
+	std::string seqOutputFilename1("e:\\Programs\\Visual Studio\\Workplaces\\Doktori\\CudaJenShaDivApp\\seq_output1.txt");
+	subSeqWriter.writeData(seqOutputFilename1, &subsequences);
+	end = clock();
+	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "Elapsed time (in min) of original method" << " " << (elapsed_secs / 60.0) << std::endl;
+	s << "Elapsed time (in min) of original method" << " " << (elapsed_secs / 60.0) << std::endl;
+	outputPerfStr = s.str();
+	outputPerformance.push_back(outputPerfStr);
+	s.str("");
+
+	begin = clock();
+	CountMatrixHolder countMatrixHolder;
+	countMatrixHolder.setupCountArrays(seq);
+
+	//int aCount1 = countMatrixHolder.queryCount('A', 0, 547495);//163078
+	//int aCount1 = countMatrixHolder.queryCount('A', 0, 1296);//348
+	//int cCount1 = countMatrixHolder.queryCount('C', 0, 1310);//252
+
+	end = clock();
+	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "Part elapsed time (in min) of count matrix method" << " " << (elapsed_secs / 60.0) << std::endl;
+	s << "Part elapsed time (in min) of count matrix method" << " " << (elapsed_secs / 60.0) << std::endl;
+	outputPerfStr = s.str();
+	outputPerformance.push_back(outputPerfStr);
+	s.str("");
+
+	SplitterWithCntMX splitterWithCntMX(seq, countMatrixHolder, jenShaDivComputer);
+	std::string seqOutputFilename2("e:\\Programs\\Visual Studio\\Workplaces\\Doktori\\CudaJenShaDivApp\\seq_output2.txt");
+	std::vector<std::string> subsequences2 = splitterWithCntMX.split(0, seq.length() - 1);
+	subSeqWriter.writeData(seqOutputFilename2, &subsequences2);
+	end = clock();
+	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "Elapsed time (in min) of count matrix method" << " " << (elapsed_secs / 60.0) << std::endl;
+	s << "Elapsed time (in min) of count matrix method" << " " << (elapsed_secs / 60.0) << std::endl;
+	outputPerfStr = s.str();
+	outputPerformance.push_back(outputPerfStr);
+	s.str("");
+
+	begin = clock();
+	CountMatrixHolderCuda countMatrixHolderCuda;
+	countMatrixHolderCuda.setupCountArrays(seq);
+	//int aCount2 = countMatrixHolderCuda.queryCount('A', 0, 547495);//163078
+	//int aCount2 = countMatrixHolderCuda.queryCount('A', 0, 1296);//348
+	//int cCount2 = countMatrixHolderCuda.queryCount('C', 0, 1310);//252
+
+	end = clock();
+	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "Part elapsed time (in min) of count matrix CUDA method" << " " << (elapsed_secs / 60.0) << std::endl;
+	s << "Part elapsed time (in min) of count matrix CUDA method" << " " << (elapsed_secs / 60.0) << std::endl;
+	outputPerfStr = s.str();
+	outputPerformance.push_back(outputPerfStr);
+	s.str("");
+
+	SplitterWithCntMX splitterWithCntMX2(seq, countMatrixHolderCuda, jenShaDivComputer);
+	std::string seqOutputFilename3("e:\\Programs\\Visual Studio\\Workplaces\\Doktori\\CudaJenShaDivApp\\seq_output3.txt");
+	std::vector<std::string> subsequences3 = splitterWithCntMX2.split(0, seq.length() - 1);
+	subSeqWriter.writeData(seqOutputFilename3, &subsequences3);
+	end = clock();
+	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "Elapsed time (in min) of count matrix CUDA method" << " " << (elapsed_secs / 60.0) << std::endl;
+	s << "Elapsed time (in min) of count matrix CUDA method" << " " << (elapsed_secs / 60.0) << std::endl;
+	outputPerfStr = s.str();
+	outputPerformance.push_back(outputPerfStr);
+	s.str("");
+
+	std::string perfOutputFilename("e:\\Programs\\Visual Studio\\Workplaces\\Doktori\\CudaJenShaDivApp\\performance.txt");
+	subSeqWriter.writeData(perfOutputFilename, &outputPerformance);
+
 	//std::cout << inputData << std::endl;
-	cudaCheckError(cudaMemcpyToSymbol(sequenceLength, &len, sizeof(int)));
-	cudaCheckError(cudaMemcpyToSymbol(usedParams, hUsedParams, 3 * sizeof(double)));
-	//std::string seq = "ACAGCAGGATATGTCGTGCT";
-	std::string seq = "ACACACACACACACGTGTGTGTGTGTG";
-	double * frequencies = frequencyComputer.computeFrequency(&seq);
-	double entropy = entropyComputer.computeEntropy(frequencies, symbols.length());
-	std::cout << entropy << std::endl;
-	std::string sequencePrefix = seq.substr(0, 5);
-	std::string sequencePostfix = seq.substr(5);
-	double * frequenciesPrefix = frequencyComputer.computeFrequency(&sequencePrefix);
-	double * frequenciesPostfix = frequencyComputer.computeFrequency(&sequencePostfix);
-	double weightPrefix = (double)sequencePrefix.length() / (double)seq.length();
-	double weightPostfix = (double)sequencePostfix.length() / (double)seq.length();
-	double divergence = jenShaDivComputer.computeDivergence(frequenciesPrefix, frequenciesPostfix,
-		weightPrefix, weightPostfix, symbols.length(), symbols.length());
-	std::cout << divergence << std::endl;
-	std::vector<std::string> subsequences = splitter.split(inputData);
-	std::string outputFilename(argv[2]);
-	subSeqWriter.writeData(outputFilename, &subsequences);
+	//cudaCheckError(cudaMemcpyToSymbol(sequenceLength, &len, sizeof(int)));
+	//cudaCheckError(cudaMemcpyToSymbol(usedParams, hUsedParams, 3 * sizeof(double)));
+	
+	//std::vector<std::string> subsequences = splitter.split(inputData);
+	//std::string outputFilename(argv[2]);
+	//subSeqWriter.writeData(outputFilename, &subsequences);
+
 	std::cout << "Press any character and press enter to continue..." << std::endl;
 	char chr;
 	std::cin >> chr;

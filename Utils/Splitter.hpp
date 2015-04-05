@@ -14,12 +14,6 @@ class ISplitter
 {
 	public:
 		virtual std::vector<std::string> split(std::string& sequence) = 0;
-		virtual void computeDivergenceForPos(std::string& sequence, double& maxDivergence,
-			std::string& seqPrefixForMax, std::string& seqPostfixForMax, int pos,
-			std::map <char, long>& chrCountsPrefix, std::map <char, long>& chrCountsPostfix) = 0;
-		virtual double computeSignificance(int N, double maxDivergence) = 0;
-		virtual std::vector<std::string> checkSignificance(std::string& sequence, std::string& seqPrefixForMax,
-			std::string& seqPostfixForMax, double significance) = 0;
 };
 
 class Splitter : public ISplitter

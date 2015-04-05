@@ -1,5 +1,7 @@
+// standard library includes
+#include <iostream>
 #include <math.h>
-//#include <gsl/gsl_cdf.h>
+#include <gsl/gsl_cdf.h>
 
 #include "Splitter.hpp"
 
@@ -44,8 +46,8 @@ void Splitter::computeDivergenceForPos(std::string& sequence, double& maxDiverge
 	char currentChar = sequence[pos - 1];
 	frequencyComputer.increaseCountChar(currentChar, chrCountsPrefix);
 	frequencyComputer.decreaseCountChar(currentChar, chrCountsPostfix);
-	double * frequenciesPrefix = frequencyComputer.determineFrequencies(chrCountsPrefix, seqLength);
-	double * frequenciesPostfix = frequencyComputer.determineFrequencies(chrCountsPostfix, seqLength);
+	double * frequenciesPrefix = frequencyComputer.determineFrequencies(chrCountsPrefix, pos);
+	double * frequenciesPostfix = frequencyComputer.determineFrequencies(chrCountsPostfix, seqLength - pos);
 	double weightPrefix = (double)pos / (double)seqLength;
 	double weightPostfix = ((double)seqLength - (double)pos) / (double)seqLength;
 	double divergence = jenShaDivComputer.computeDivergence(frequenciesPrefix, frequenciesPostfix,
@@ -67,8 +69,8 @@ double Splitter::computeSignificance(int N, double maxDivergence)
 	if (maxDivergence > 0.0)
 	{
 		double NEff = aParam * log(N) + bParam;
-		//significance = gsl_cdf_chisq_P(2 * N * log(2) * betaParam * maxDivergence, symbols.length() - 1);
-		significance = getChiSquaredCDFComputer().computeValue(symbols.length() - 1, 2 * N * log(2) * betaParam * maxDivergence);
+		significance = gsl_cdf_chisq_P(2 * N * log(2) * betaParam * maxDivergence, symbols.length() - 1);
+		//significance = getChiSquaredCDFComputer().computeValue(symbols.length() - 1, 2 * N * log(2) * betaParam * maxDivergence);
 		significance = pow(significance, NEff);
 	}
 	return significance;
@@ -80,6 +82,7 @@ std::vector<std::string> Splitter::checkSignificance(std::string& sequence, std:
 	std::vector<std::string> result;
 	if (significance > significanceThreshold)
 	{
+		std::cout << "New splitpoint" << std::endl;
 		std::vector<std::string>& resultPrefix = split(seqPrefixForMax);
 		std::vector<std::string>& resultPostfix = split(seqPostfixForMax);
 		result.resize(resultPrefix.size() + resultPostfix.size());

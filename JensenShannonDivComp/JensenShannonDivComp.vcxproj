@@ -25,7 +25,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -45,7 +45,8 @@
     <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(CUDA_INC_PATH);e:\Utils\GSL\GSL_WIN\gsl\x86\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(CUDA_INC_PATH);e:\Utils\GSL\GSL_WIN\gsl\x86\include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -68,7 +69,7 @@
       <CodeGeneration>compute_20,sm_20</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <PtxAsOptionV>true</PtxAsOptionV>
-      <MaxRegCount>42</MaxRegCount>
+      <MaxRegCount>0</MaxRegCount>
       <Runtime>MTd</Runtime>
     </CudaCompile>
   </ItemDefinitionGroup>
@@ -82,19 +83,39 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(CudaToolkitLibDir);$(CUDA_PATH)/lib/$(PlatformName);e:\Utils\GSL\GSL_WIN\gsl\x86\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;cudart.lib;%(AdditionalDependencies);gsl.lib;</AdditionalDependencies>
     </Link>
+    <CudaCompile>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
+      <CodeGeneration>compute_20,sm_20</CodeGeneration>
+      <GenerateLineInfo>true</GenerateLineInfo>
+      <MaxRegCount>0</MaxRegCount>
+      <PtxAsOptionV>true</PtxAsOptionV>
+      <Runtime>MT</Runtime>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CudaCompile Include="CountMatrixHolderCuda.cu" />
+    <CudaCompile Include="kernels.cu" />
     <CudaCompile Include="Program.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CountMatrixHolder.cuh" />
     <ClInclude Include="CudaBasicIncludes.cuh" />
+    <ClInclude Include="kernels.cuh" />
+    <ClInclude Include="SplitterWithCntMX.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CountMatrixHolder.cpp" />
+    <ClCompile Include="SplitterWithCntMX.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
