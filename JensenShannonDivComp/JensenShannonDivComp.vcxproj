@@ -106,12 +106,14 @@
     <CudaCompile Include="CountMatrixHolderCuda.cu" />
     <CudaCompile Include="kernels.cu" />
     <CudaCompile Include="Program.cu" />
+    <CudaCompile Include="SplitterWithCntMXCuda.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CountMatrixHolder.cuh" />
     <ClInclude Include="CudaBasicIncludes.cuh" />
     <ClInclude Include="kernels.cuh" />
     <ClInclude Include="SplitterWithCntMX.hpp" />
+    <ClInclude Include="SplitterWithCntMXCuda.cuh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CountMatrixHolder.cpp" />

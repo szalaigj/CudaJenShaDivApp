@@ -21,6 +21,11 @@ extern const BYTE subSeqLength;
 class ICountMatrixHolder
 {
 public:
+	virtual int getCountArraySize() = 0;
+	virtual BYTE * getCountArrayA() = 0;
+	virtual BYTE * getCountArrayC() = 0;
+	virtual BYTE * getCountArrayG() = 0;
+	virtual BYTE * getCountArrayT() = 0;
 	virtual int queryCount(char symbol, int i, int j) = 0;
 	virtual double queryFrequency(char symbol, int i, int j) = 0;
 };
@@ -28,22 +33,27 @@ public:
 class BasicCountMatrixHolder : public ICountMatrixHolder
 {
 public:
-	const BYTE * getCountArrayA() const
+	int getCountArraySize()
+	{
+		return countArraySize;
+	}
+
+	BYTE * getCountArrayA()
 	{
 		return countArrayA;
 	}
 
-	const BYTE * getCountArrayC() const
+	BYTE * getCountArrayC()
 	{
 		return countArrayC;
 	}
 
-	const BYTE * getCountArrayG() const
+	BYTE * getCountArrayG()
 	{
 		return countArrayG;
 	}
 
-	const BYTE * getCountArrayT() const
+	BYTE * getCountArrayT()
 	{
 		return countArrayT;
 	}
@@ -58,7 +68,7 @@ public:
 	{
 		int seqLen = sequence.length();
 		int subSeqNumber = ceil((double)seqLen / (double)subSeqLength);
-		int countArraySize = subSeqNumber * ((subSeqLength + 1) * subSeqLength / 2);
+		countArraySize = subSeqNumber * ((subSeqLength + 1) * subSeqLength / 2);
 		countArrayA = new BYTE[countArraySize];
 		countArrayC = new BYTE[countArraySize];
 		countArrayG = new BYTE[countArraySize];
@@ -66,6 +76,7 @@ public:
 		innerSetupCountArrays(sequence, seqLen, subSeqNumber, countArraySize);
 	}
 protected:
+	int countArraySize;
 	BYTE * countArrayA;
 	BYTE * countArrayC;
 	BYTE * countArrayG;

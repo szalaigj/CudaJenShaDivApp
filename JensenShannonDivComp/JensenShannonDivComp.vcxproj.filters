@@ -24,6 +24,9 @@
     <CudaCompile Include="CountMatrixHolderCuda.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="SplitterWithCntMXCuda.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CudaBasicIncludes.cuh">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="kernels.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SplitterWithCntMXCuda.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,7 +3,6 @@
 extern __constant__ BYTE d_subSeqLength;
 extern __constant__ int d_sequenceLength;
 extern __constant__ int d_subSeqNumber;
-//extern __device__ char * d_sequence;
 
 __device__
 void countKernel(char * tmp, int j, int i, BYTE& a, BYTE& c, BYTE& g, BYTE& t)
@@ -71,5 +70,91 @@ void setupCountArraysKernel(char * sequence, BYTE * countArrayA, BYTE * countArr
 			//printf("(k, j, i) : (%i, %i, %i); (a, c, g, t) : (%u, %u, %u, %u)\n", k, j, i, a, c, g, t);
 		}
 
+	}
+}
+
+__device__
+int queryCount(BYTE * countArray, int i, int j)
+{
+	int temp = i;
+	if (i > j)
+	{
+		i = j;
+		j = temp;
+	}
+	int I = i % d_subSeqLength;
+	int J = j % d_subSeqLength;
+	int Ki = (i - I) / d_subSeqLength;
+	int Kj = (j - J) / d_subSeqLength;
+	int result;
+	if (Ki == Kj)
+	{
+		result = countArray[transformIndex(Ki, I, J)]; //queryCountInSubSeq(symbol, Ki, I, J);
+	}
+	else if (Kj == Ki + 1)
+	{
+		result = countArray[transformIndex(Ki, I, d_subSeqLength - 1)];
+		result += countArray[transformIndex(Kj, 0, J)];
+	}
+	else
+	{
+		result = countArray[transformIndex(Ki, I, d_subSeqLength - 1)];
+		for (int k = Ki + 1; k <= Kj - 1; k++)
+		{
+			result += countArray[transformIndex(k, 0, d_subSeqLength - 1)];
+		}
+		result += countArray[transformIndex(Kj, 0, J)];
+	}
+	return result;
+}
+
+__device__
+double queryFrequency(BYTE * countArray, int i, int j)
+{
+	int temp = i;
+	if (i > j)
+	{
+		i = j;
+		j = temp;
+	}
+	double result;
+	result = (double)queryCount(countArray, i, j) / (double)(j - i + 1);
+	return result;
+}
+
+__device__
+double computeEntropy(double frequency)
+{
+	double entropy = 0.0;
+	if (frequency != 0.0)
+	{
+		entropy -= frequency * log(frequency);
+	}
+	return entropy;
+}
+
+__device__
+double computeDivergence(double frequencyPrefix, double frequencyPostfix, double weightPrefix, double weightPostfix)
+{
+	double weightedFrequency1 = frequencyPrefix * weightPrefix;
+	double weightedFrequency2 = frequencyPostfix * weightPostfix;
+	double sumOfFrequencies = weightedFrequency1 + weightedFrequency2;
+	double result = computeEntropy(sumOfFrequencies)
+		- weightPrefix * computeEntropy(frequencyPrefix)
+		- weightPostfix * computeEntropy(frequencyPostfix);
+	return result;
+}
+
+__global__
+void computePartDivergenceForPos(BYTE * countArray, int startIdx, int endIdx, int seqLen, double * divs)
+{
+	int index = threadIdx.x + blockIdx.x * blockDim.x;
+	if ((index > 0) && (index < seqLen))
+	{
+		double frequencyPrefix = queryFrequency(countArray, startIdx, startIdx + index - 1);
+		double frequencyPostfix = queryFrequency(countArray, startIdx + index, endIdx);
+		double weightPrefix = (double)(index) / (double)(seqLen);
+		double weightPostfix = (double)(seqLen - index) / (double)(seqLen);
+		divs[index] = computeDivergence(frequencyPrefix, frequencyPostfix, weightPrefix, weightPostfix);
 	}
 }

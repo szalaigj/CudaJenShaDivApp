@@ -7,7 +7,6 @@ extern const BYTE subSeqLength;
 __constant__ BYTE d_subSeqLength;
 __constant__ int d_sequenceLength;
 __constant__ int d_subSeqNumber;
-//__device__ char * d_sequence;
 
 void CountMatrixHolderCuda::innerSetupCountArrays(std::string& sequence, int seqLen, int subSeqNumber, int countArraySize)
 {
